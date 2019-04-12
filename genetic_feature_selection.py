@@ -21,8 +21,7 @@ feature_names=dataset.feature_names
 estimator=LinearRegression()
 score=-1.0*cross_val_score(estimator,X,y,cv=5,scoring='neg_mean_squared_error')
 estimator.fit(x_train,y_train)
-print(estimator.score(x_test,y_test))
-print("Error rate before optimization:",np.mean(score))
+print("CV MSE before optimization:",np.mean(score))
 
 class GeneticFeatureSelection:
     def __init__(self,regressor,n_gen,n_best,size,n_rand,n_children,mutation_rate):
@@ -103,15 +102,15 @@ class GeneticFeatureSelection:
         plt.xlabel('Generation')
         plt.ylabel('Fitness scores')
         plt.legend()
-        plt.show()
-        #plt.savefig('fitness.jpg')
+        #plt.show()
+        plt.savefig('fitness.jpg')
     def plot_selections(self):
-        #plt.clf()
+        plt.clf()
         plt.plot(self.selected_features)
         plt.xlabel("Generation")
         plt.ylabel("No. of selected features")
-        plt.show()
-        #plt.savefig('Feature Selection.png')
+        #plt.show()
+        plt.savefig('Feature Selection.png')
 selection=GeneticFeatureSelection(regressor=LinearRegression(),n_gen=7, size=200, n_best=40, n_rand=40,n_children=7, mutation_rate=0.05)
 selection.fit(X,y)
 selection.plot_progress()
@@ -120,5 +119,12 @@ score=-1.0*cross_val_score(estimator,X[:,selection.get_support()],y,cv=5,scoring
 x_train,x_test,y_train,y_test=train_test_split(X[:,selection.get_support()],y,train_size=0.8)
 estimator=LinearRegression()
 estimator.fit(x_train,y_train)
-print(estimator.score(x_test,y_test))
-print("Error rate before optimization:",np.mean(score))
+print(str(np.sum(selection.get_support()))+" features selected")
+print("CV MSE after optimization:",np.mean(score))
+print("Selected features:")
+for presence,feature in zip(selection.get_support(),dataset.feature_names):
+	if presence==1:
+		print(feature)
+
+
+
